@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digit Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Digit Prediction using SVM</h1>
+        <p>Enter 784 pixel values below (comma-separated):</p>
+        <textarea id="features" rows="5" cols="100" placeholder="Enter 784 values separated by commas..."></textarea>
+        <br>
+        <button onclick="predictDigit()">Predict</button>
+        <h2>Prediction: <span id="result">N/A</span></h2>
+    </div>
+
+    <script>
+        function predictDigit() {
+            let inputText = document.getElementById("features").value;
+            let features = inputText.split(",").map(Number);
+
+            if (features.length !== 784) {
+                alert("Error: Please enter exactly 784 values.");
+                return;
+            }
+
+            fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "features": features })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById("result").textContent = data.prediction;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
